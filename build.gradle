@@ -1,64 +1,65 @@
 version '1.0-SNAPSHOT'
 
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: "net.serenity-bdd.serenity-gradle-plugin"
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
+
 buildscript {
     repositories {
         mavenLocal()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
         mavenCentral()
+        maven {url "https://plugins.gradle.org/m2/"}
     }
     dependencies {
-        classpath("net.serenity-bdd:serenity-gradle-plugin:3.3.10")
+        classpath("net.serenity-bdd:serenity-gradle-plugin:4.0.12")
     }
 }
-ext{
-    serenityVersion = '3.3.10'
-}
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: "net.serenity-bdd.serenity-gradle-plugin"
+
+def serenityVersion = '4.0.12'
+def cucumberVersion = '7.14.0'
+
 
 compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+    sourceCompatibility = 11
+    targetCompatibility = 11
 }
 
 dependencies {
-    implementation group: 'org.postgresql', name: 'postgresql', version: '42.1.4'
+
+    implementation "net.serenity-bdd:serenity-core:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-junit:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay:${serenityVersion}"
+    testImplementation "net.serenity-bdd:serenity-cucumber:${serenityVersion}"
+    implementation "net.serenity-bdd:serenity-screenplay-webdriver:${serenityVersion}"
+    implementation group: 'io.cucumber', name: 'datatable', version: "${cucumberVersion}"
+    testImplementation group: 'io.cucumber', name: 'cucumber-junit', version: "${cucumberVersion}"
+    implementation "net.serenity-bdd:serenity-reports:${serenityVersion}"
     implementation group: 'junit', name: 'junit', version: '4.13.2'
-    implementation 'org.assertj:assertj-core:3.22.0'
-    implementation 'org.slf4j:slf4j-simple:1.7.33'
-    implementation "net.serenity-bdd:serenity-core:$rootProject.ext.serenityVersion"
-    implementation "net.serenity-bdd:serenity-junit:$rootProject.ext.serenityVersion"
-    implementation "net.serenity-bdd:serenity-screenplay:$rootProject.ext.serenityVersion"
-    implementation "net.serenity-bdd:serenity-cucumber:$rootProject.ext.serenityVersion"
-    implementation "net.serenity-bdd:serenity-screenplay-webdriver:$rootProject.ext.serenityVersion"
-    implementation 'org.apache.poi:poi-ooxml:4.1.2'
-    implementation 'io.github.bonigarcia:webdrivermanager:5.4.1'
+    implementation 'org.assertj:assertj-core:3.24.0'
+    implementation 'org.slf4j:slf4j-simple:2.0.0'
+
     implementation 'org.reflections:reflections:0.10.2'
-    implementation 'org.knowm.xchart:xchart:3.8.0'
-    implementation 'org.jfree:jfreechart:1.5.3'
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
-task credentials(type: Test) {
-    systemProperty 'user',
-            System.getProperty('user')
-    systemProperty 'password',
-            System.getProperty('password')
-}
-
 test {
-    systemProperties = System.properties
+    useJUnit {
+        gradle.startParameter.continueOnFailure = true
+        testLogging.showStandardStreams = true
+        systemProperties System.getProperties()
+        systemProperties project.properties.subMap(["username","password"])
+        systemProperty "cucumber.filter.tags", System.getProperty("cucumber.filter.tags")
+    }
 }
 
 test.finalizedBy(aggregate)

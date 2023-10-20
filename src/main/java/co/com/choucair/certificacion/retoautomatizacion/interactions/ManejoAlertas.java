@@ -1,8 +1,6 @@
 package co.com.choucair.certificacion.retoautomatizacion.interactions;
 
-import net.serenitybdd.screenplay.Question;
-import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
-import org.openqa.selenium.Alert;
+
 import org.openqa.selenium.WebDriver;
 
 import java.awt.*;
