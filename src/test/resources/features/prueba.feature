@@ -16,7 +16,7 @@ Característica:  Se intenta relizar una regresion de los servicios exitosos de 
 
     Ejemplos:
       | user  | pass     |
-      | test01 | Test2023* |
+      | ccgg | ccgg1290* |
 
 
 
